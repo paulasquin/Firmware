@@ -91,7 +91,8 @@
 #include <drivers/airspeed/airspeed.h>
 
 /* I2C bus address is 1010001x */
-#define I2C_ADDRESS_MS4525DO	0x28	/**< 7-bit address. Depends on the order code (this is for code "I") */
+//#define I2C_ADDRESS_MS4525DO	0x28	/**< 7-bit address. Depends on the order code (this is for code "I") */
+#define I2C_ADDRESS_MS4525DO 0x46
 #define PATH_MS4525		"/dev/ms4525"
 
 /* Register address */
@@ -149,8 +150,13 @@ MEASAirspeed::measure()
 	/*
 	 * Send the command to begin a measurement.
 	 */
-	uint8_t cmd = 0;
-	ret = transfer(&cmd, 1, nullptr, 0);
+	uint8_t val = 0;
+	//uint8_t cmd = 0;
+
+
+
+	//ret = transfer(&cmd, 1, nullptr, 0);
+	ret = transfer(nullptr, 0, &val, 1);
 
 	if (OK != ret) {
 		perf_count(_comms_errors);
@@ -217,8 +223,13 @@ MEASAirspeed::collect()
 
 	// Calculate differential pressure. As its centered around 8000
 	// and can go positive or negative
-	const float P_min = -1.0f;
-	const float P_max = 1.0f;
+	
+	/*const float P_min = -1.0f;
+	const float P_max = 1.0f;//Modif pour adaptation capteur faible pression*/
+
+	const float P_min = -0.07f;
+	const float P_max = 0.07f;
+
 	const float PSI_to_Pa = 6894.757f;
 	/*
 	  this equation is an inversion of the equation in the
@@ -228,7 +239,8 @@ MEASAirspeed::collect()
 	  are generated when the bottom port is used as the static
 	  port on the pitot and top port is used as the dynamic port
 	 */
-	float diff_press_PSI = -((dp_raw - 0.1f * 16383) * (P_max - P_min) / (0.8f * 16383) + P_min);
+		//float diff_press_PSI = -((dp_raw - 0.1f * 16383) * (P_max - P_min) / (0.8f * 16383) + P_min);//Modif pour capteur faible pression
+	float diff_press_PSI = -((dp_raw - 0.05f * 16383) * (P_max - P_min) / (0.9f * 16383) + P_min);
 	float diff_press_pa_raw = diff_press_PSI * PSI_to_Pa;
 
 	// correct for 5V rail voltage if possible

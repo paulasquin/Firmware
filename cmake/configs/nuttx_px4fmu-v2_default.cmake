@@ -7,6 +7,15 @@ set(CMAKE_TOOLCHAIN_FILE ${PX4_SOURCE_DIR}/cmake/toolchains/Toolchain-arm-none-e
 set(config_uavcan_num_ifaces 2)
 
 set(config_module_list
+
+		#
+	#Application Personnel
+	#
+	#paul/derive
+	paul/plogger
+	paul/ancre
+	#paul/pairspeed
+
 	#
 	# Board support modules
 	#
